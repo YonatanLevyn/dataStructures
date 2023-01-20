@@ -3,15 +3,12 @@
 #include <stdbool.h>
 
 
-
-
 typedef enum
 {
     STACK_CHAR,
     STACK_INT
 
 }datatype;
-
 
 
 typedef struct stack
@@ -38,26 +35,37 @@ stack stackCreator(size_t size, datatype type){
         .type_size = effectiveSize,
         .data = malloc(effectiveSize),
         .top = NULL
-
     };
-
     return s;
-    
-
 
 }
 bool isfull(stack *s) {
-  if (s->top == (s->size*s->type_size)+s->data)
+  if (s->top == (s->size*s->type_size)+s->data){
     return true;
-  else
+  }else{
     return false;
+  }
 }
+
 void push(stack* s,void *item){
+    if (isfull(s->top)){
+        printf("%c\n", "the stack is full!");
+    }
+    if (s->top == NULL){
+        s->top = s->data ;
+        s->data[0] = *item;
+    }else{
+        s->top++;
+        *(s->top) = *item;
+    }
+}
 
-    s->top++;
-    s->data[s->top] = item;
+void show_top(stack* s){
+    printf('%c\n',*(s->top));
+}
 
-
-
-
+void extract(stack* s){
+    show_top(s);
+    *(s->top) = 0;
+    s->top--;
 }
