@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include </Users/macbookpro/dataStructures/Linked_list.c>
-
 
 #define CAPACITY 50000 // Size of the HashTable.
 
@@ -41,10 +39,9 @@ Ht_item *create_item(char* key,int value)
     // Creates a pointer to a new HashTable item.
     Ht_item *item = (Ht_item *)malloc(sizeof(Ht_item));
     item->key = malloc(strlen(key)+1);
-    item->value = malloc(sizeof(value));
-    item->next = NULL;
     strcpy(item->key, key); 
     item->value = value;
+    item->next = NULL;
     return item;
 }
 
@@ -54,11 +51,10 @@ HashTable *create_table(int size)
     HashTable *table = (HashTable *)malloc(sizeof(HashTable));
     table->size = size;
     table->count = 0;
-    table->items = (Ht_item **)calloc(table->size, sizeof(Ht_item *));
+    table->items = (Ht_item **)malloc(table->size * sizeof(Ht_item *));
 
     for (int i = 0; i < table->size; i++)
-        table->items[i] = NULL; /*why set to NULL after calloc*/
-
+        table->items[i] = NULL; 
     return table;
 }
 
@@ -66,35 +62,24 @@ HashTable *create_table(int size)
 void ht_insert(HashTable *table, char *key, int value)
 {
     int hash_key = hash_function(key);
-    Ht_item *item = create_item(hash_key, value);
     Ht_item *current_item = table->items[hash_key];
 
     if (current_item == NULL)
     {
-        // Key does not exist.
-        if (table->count == table->size) /*so what we can still continue add items*/
-        {
-            // HashTable is full.
-            printf("Insert Error: Hash Table is full\n");
-            free_item(item);
-            return;
-        }
-
-        // Insert directly.
-        table->items[hash_key] = item;
-        //table->count++;
+        current_item->key = malloc(strlen(key)+1);
+        strcpy(current_item->key, key); 
+        current_item->value = value;
+        current_item->next = NULL;
     }
     else{
-        // Handle the collision.
-        while(current_item->next != NULL)
-        {
-            current_item = current_item->next;
-        }
-        current_item->next = item;
-        return;
+        Ht_item *item = create_item(key, value);
+        while(current_item != NULL)
+       {
+          current_item = current_item->next;
+       }
+       current_item = item;
     }
     table->count++;
-    
 }
 
 int ht_search(HashTable *table, char *key)
@@ -104,15 +89,13 @@ int ht_search(HashTable *table, char *key)
     Ht_item *item = table->items[hash_key];
 
     // Loop through the list
-    while(strcmp(item->key, key) == 0 && item != NULL)
+    while(item != NULL)
+        if(strcmp(item->key, key) == 0){
+            return item->value;
+        }
         item = item->next;
-    
-    if (item == NULL)
-    {
-        return 0;
-    }
-
-    return item->value;
+    // Does not exist
+    return 0; 
 }
 
 void ht_delete(HashTable *table, char *key)
@@ -121,17 +104,18 @@ void ht_delete(HashTable *table, char *key)
     Ht_item *head = table->items[hash_key];
 
     // Check the head
-    if (head == NULL){ printf("Does not exist\n"); return;} /* ata maskim li lihtov caha? */
-
+    if (head == NULL)
+    { 
+        printf("Does not exist\n");
+        return;
+    } 
     if (strcmp(head->key, key) == 0)
     {
         table->items[hash_key] = head->next;
-        free(head->key);/*Is it necessary to delete the information?*/
+        free(head->key);
         free(head->value);
         free(head);
-        return;
     }
-    
     else
     {
         // Search for the key in the list
@@ -155,13 +139,14 @@ void ht_delete(HashTable *table, char *key)
         free(curr->key);
         free(curr->value);
         free(curr);
-
     }
+    // Update number of elements
+    table->count--;
 }
 
 void print_search(HashTable *table, char *key)
 {
-    char *val;
+    int val;
 
     if ((val = ht_search(table, key)) == NULL)
     {
@@ -170,20 +155,25 @@ void print_search(HashTable *table, char *key)
     }
     else
     {
-        printf("Key:%s, Value:%s\n", key, val);
+        printf("Key:%s, Value:%d\n", key, val);
     }
 }
 
 void print_table(HashTable *table)
 {
     printf("\nHash Table\n-------------------\n");
+    printf("%d items in the table");
 
-    for (int i = 0; i < table -> size; i++)
+    for (int i = 0; i < table->size; i++)
     {
-        if (table -> items[i])
+        Ht_item *item = table->items[i];
+        printf("Hash_key%d:", i);
+        while(item)
         {
-            printf("Index:%d, Key:%s, Value:%s\n", i, table -> items[i] -> key, table -> items[i] -> value);
+            printf("Key:%s, Value:%d -> ", i, item->key, item->value);
+            item = item->next;
         }
+        printf("NULL\n");
     }
 
     printf("-------------------\n\n");
@@ -192,18 +182,15 @@ void print_table(HashTable *table)
 int main()
 {
     HashTable *ht = create_table(CAPACITY);
-    ht_insert(ht, (char *)"1", (char *)"First address");
-    ht_insert(ht, (char *)"2", (char *)"Second address");
-    ht_insert(ht, (char *)"Hel", (char *)"Third address");
-    ht_insert(ht, (char *)"Cau", (char *)"Fourth address");
-    print_search(ht, (char *)"1");
-    print_search(ht, (char *)"2");
-    print_search(ht, (char *)"3");
-    print_search(ht, (char *)"Hel");
-    print_search(ht, (char *)"Cau"); // Collision!
+    ht_insert(ht, (char *)"dudu", (int)123);
+    ht_insert(ht, (char *)"yosi", (int)213);
+    ht_insert(ht, (char *)"itzik", (int)231);
+    ht_insert(ht, (char *)"avi", (int)312);
+    print_search(ht, (char *)"dudu");
+    print_search(ht, (char *)"yosi");
+    print_search(ht, (char *)"itzik");
     print_table(ht);
-    ht_delete(ht, (char *)"1");
-    ht_delete(ht, (char *)"Cau");
+    ht_delete(ht, (char *)"dudu");
     print_table(ht);
     free_table(ht);
     return 0;
