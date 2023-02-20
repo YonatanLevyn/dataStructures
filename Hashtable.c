@@ -3,6 +3,8 @@
 #include <string.h>
 #include "Hashtable.h"         
 
+//The hash key is computed by summing up the ASCII values of each character 
+//and then taking the modulo of the result with the size of the table.
 size_t hash_function(char* str)
 {
     size_t i = 0;
@@ -58,7 +60,7 @@ int ht_insert(HashTable *table, char* key, int value)
         }
         if (strcmp(item->key, key) == 0)
         {
-            printf("Key already exist!\n");
+            printf("Failed to insert! key already exist\n");
             return 0;
         }
     
@@ -66,7 +68,7 @@ int ht_insert(HashTable *table, char* key, int value)
     }
     table->count++;
     printf("%lu elements in the table\n", table->count);
-    return 0;
+    return 1;
 }
 
 int ht_search(HashTable *table, char *key)
